@@ -1,8 +1,19 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+let midiParser = require("midi-parser-js");
+let fs = require("fs");
+
+const router = express.Router();
 
 router.get("/", function (req, res, next) {
-  res.send({ hi: "hooooo" });
+  fs.readFile(
+    "D:\\GoogleDrive\\LeoEP\\LeoEP Share\\Ryan\\Demo EP Part I\\midi\\4_quark_new.midi",
+    "base64",
+    function (err, data) {
+      const midiArray = midiParser.parse(data);
+      console.log(midiArray);
+      res.send({ hi: "hooooo" });
+    }
+  );
 });
 
 module.exports = router;
