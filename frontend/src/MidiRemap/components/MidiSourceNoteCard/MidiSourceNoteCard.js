@@ -18,10 +18,11 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MidiNoteSourceCard({ note, index }) {
+export default function MidiSourceNoteCard({ noteId, index, getNoteForId }) {
   const classes = useStyles();
+  const note = getNoteForId(noteId);
   return (
-    <Draggable draggableId={note.pitch.toString()} index={index}>
+    <Draggable draggableId={noteId} index={index}>
       {(provided) => (
         <Card
           className={classes.root}

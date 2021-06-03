@@ -14,15 +14,23 @@ const useStyles = makeStyles({
   },
 });
 
-function MidiRemapView({ sourceNotes, targetNotes }) {
+function MidiRemapView({ sourceColumn, targetColumn, getNoteForId }) {
   const classes = useStyles();
 
   return (
     <React.Fragment>
       <h1 className={classes.title}>Leo's geiles Produkt</h1>
       <div className={classes.doubleTable}>
-        <MidiNoteColumn notes={sourceNotes} columnId="source" />
-        <MidiNoteColumn notes={targetNotes} columnId="target" />
+        <MidiNoteColumn
+          noteIds={sourceColumn}
+          getNoteForId={getNoteForId}
+          columnId="source"
+        />
+        <MidiNoteColumn
+          noteIds={targetColumn}
+          getNoteForId={getNoteForId}
+          columnId="target"
+        />
       </div>
     </React.Fragment>
   );

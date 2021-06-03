@@ -18,6 +18,7 @@ const initialData = {
       pitch: 640,
       target: true,
       name: "TargetSnare",
+      assignedNotes: [],
     },
   },
   sourceColumn: ["source-540", "source-550"],
@@ -25,21 +26,57 @@ const initialData = {
 };
 
 class MidiRemap extends React.Component {
-  state = initialData;
+  constructor(props) {
+    super(props);
+    this.state = initialData;
+    this.getNoteForId = this.getNoteForId.bind(this);
+  }
 
-  onDragEnd = (result) => {};
+  onDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const newState = { ...this.state };
+
+    if (source.droppableId === "source") {
+      newState.sourceColumn.splice(source.index, 1);
+    } else {
+      // Inside a TargetNote
+      let targetNote = newState.notes[source.droppableId];
+      targetNote.assignedNotes.splice(source.index, 1);
+    }
+
+    if (destination.droppableId === "source") {
+      newState.sourceColumn.splice(destination.index, 0, draggableId);
+    } else {
+      // Inside a TargetNote
+      let targetNote = newState.notes[destination.droppableId];
+      targetNote.assignedNotes.splice(destination.index, 0, draggableId);
+    }
+    console.log(newState);
+    this.setState(newState);
+  };
+
+  getNoteForId(noteId) {
+    return this.state.notes[noteId];
+  }
 
   render() {
-    const sourceNotes = this.state.sourceColumn.map(
-      (noteId) => this.state.notes[noteId]
-    );
-    const targetNotes = this.state.targetColumn.map(
-      (noteId) => this.state.notes[noteId]
-    );
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <React.Fragment>
-          <MidiRemapView sourceNotes={sourceNotes} targetNotes={targetNotes} />
+          <MidiRemapView
+            sourceColumn={this.state.sourceColumn}
+            targetColumn={this.state.targetColumn}
+            getNoteForId={this.getNoteForId}
+          />
         </React.Fragment>
       </DragDropContext>
     );
