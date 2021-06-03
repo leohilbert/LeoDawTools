@@ -17,11 +17,43 @@ const useStyles = makeStyles({
     fontSize: 14,
     color: "white",
   },
+  dropHere: {
+    marginTop: "1rem",
+    borderWidth: "2px",
+    borderStyle: "dashed",
+    backgroundColor: "transparent",
+    borderColor: "darkgray",
+    color: "white",
+  },
 });
 
 export default function MidiTargetNoteCard({ noteId, getNoteForId }) {
   const classes = useStyles();
   const note = getNoteForId(noteId);
+
+  const renderChildren = (provided, assignedNotes) => {
+    if (assignedNotes && assignedNotes.length) {
+      return (
+        <div>
+          {assignedNotes.map((noteId, index) => (
+            <MidiNoteCard
+              key={noteId}
+              noteId={noteId}
+              getNoteForId={getNoteForId}
+              index={index}
+            />
+          ))}
+          {provided.placeholder}
+        </div>
+      );
+    } else {
+      return (
+        <Card className={classes.dropHere}>
+          <CardContent>Drop Notes here</CardContent>
+        </Card>
+      );
+    }
+  };
   return (
     <Card className={classes.root}>
       <CardContent>
@@ -36,21 +68,10 @@ export default function MidiTargetNoteCard({ noteId, getNoteForId }) {
           {note.name}
         </Typography>
 
-        <Typography variant="h5" component="h2">
-          Mapped Notes:
-        </Typography>
         <Droppable droppableId={noteId}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {note.assignedNotes.map((noteId, index) => (
-                <MidiNoteCard
-                  key={noteId}
-                  noteId={noteId}
-                  getNoteForId={getNoteForId}
-                  index={index}
-                />
-              ))}
-              {provided.placeholder}
+              {renderChildren(provided, note.assignedNotes)}
             </div>
           )}
         </Droppable>

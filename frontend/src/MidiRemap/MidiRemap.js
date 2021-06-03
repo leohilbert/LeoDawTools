@@ -30,6 +30,7 @@ class MidiRemap extends React.Component {
     super(props);
     this.state = initialData;
     this.getNoteForId = this.getNoteForId.bind(this);
+    this.updatePitchList = this.updatePitchList.bind(this);
   }
 
   onDragEnd = (result) => {
@@ -43,7 +44,7 @@ class MidiRemap extends React.Component {
       return;
     }
 
-    const newState = { ...this.state };
+    const newState = JSON.parse(JSON.stringify(this.state));
 
     if (source.droppableId === "source") {
       newState.sourceColumn.splice(source.index, 1);
@@ -58,6 +59,7 @@ class MidiRemap extends React.Component {
     } else {
       // Inside a TargetNote
       let targetNote = newState.notes[destination.droppableId];
+      if (!targetNote) return;
       targetNote.assignedNotes.splice(destination.index, 0, draggableId);
     }
     console.log(newState);
@@ -68,6 +70,43 @@ class MidiRemap extends React.Component {
     return this.state.notes[noteId];
   }
 
+  updatePitchList(columnId, pitchList) {
+    const newState = JSON.parse(JSON.stringify(this.state));
+
+    const newNotes = [];
+    if (columnId === "source") {
+      newState.targetColumn.map((noteId) => {
+        let note = this.getNoteForId(noteId);
+        newNotes.push({
+          id: noteId,
+          pitch: note.pitch,
+          name: note.name,
+          target: true,
+          assignedNotes: [],
+        });
+      });
+      newState.sourceColumn = [];
+      pitchList.map((note) => {
+        const noteId = "source-" + note.pitch;
+        newState.sourceColumn.push(noteId);
+        newNotes.push({
+          id: noteId,
+          pitch: note.pitch,
+          name: note.name,
+          target: false,
+        });
+      });
+
+      newState.notes = newNotes.reduce(
+        (obj, cur) => ({ ...obj, [cur.id]: cur }),
+        {}
+      );
+
+      console.log(newState);
+      this.setState(newState);
+    }
+  }
+
   render() {
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
@@ -76,6 +115,7 @@ class MidiRemap extends React.Component {
             sourceColumn={this.state.sourceColumn}
             targetColumn={this.state.targetColumn}
             getNoteForId={this.getNoteForId}
+            updatePitchList={this.updatePitchList}
           />
         </React.Fragment>
       </DragDropContext>

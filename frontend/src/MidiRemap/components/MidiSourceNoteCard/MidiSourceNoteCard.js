@@ -12,6 +12,9 @@ const useStyles = makeStyles({
     color: "white",
     backgroundColor: "#1d1d1d",
   },
+  rootDragged: {
+    filter: "drop-shadow(0 0 1rem crimson);",
+  },
   title: {
     fontSize: 14,
     color: "white",
@@ -23,12 +26,15 @@ export default function MidiSourceNoteCard({ noteId, index, getNoteForId }) {
   const note = getNoteForId(noteId);
   return (
     <Draggable draggableId={noteId} index={index}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <Card
-          className={classes.root}
+          className={`${snapshot.isDragging ? classes.rootDragged : ""} ${
+            classes.root
+          }`}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
+          isDragging={true}
         >
           <CardContent>
             <Typography
