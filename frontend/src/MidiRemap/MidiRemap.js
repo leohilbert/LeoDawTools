@@ -3,26 +3,9 @@ import MidiRemapView from "./MidiRemapView";
 import { DragDropContext } from "react-beautiful-dnd";
 
 const initialData = {
-  notes: {
-    "source-540": {
-      pitch: 540,
-      target: false,
-      name: "SourceSnare",
-    },
-    "source-550": {
-      pitch: 550,
-      target: false,
-      name: "SourceKick",
-    },
-    "target-640": {
-      pitch: 640,
-      target: true,
-      name: "TargetSnare",
-      assignedNotes: [],
-    },
-  },
-  sourceColumn: ["source-540", "source-550"],
-  targetColumn: ["target-640"],
+  notes: {},
+  sourceColumn: [],
+  targetColumn: [],
 };
 
 class MidiRemap extends React.Component {
@@ -73,38 +56,47 @@ class MidiRemap extends React.Component {
   updatePitchList(columnId, pitchList) {
     const newState = JSON.parse(JSON.stringify(this.state));
 
+    const updateSource = columnId === "source"; // otherwise target
+
     const newNotes = [];
-    if (columnId === "source") {
-      newState.targetColumn.map((noteId) => {
-        let note = this.getNoteForId(noteId);
-        newNotes.push({
-          id: noteId,
-          pitch: note.pitch,
-          name: note.name,
-          target: true,
-          assignedNotes: [],
-        });
-      });
-      newState.sourceColumn = [];
-      pitchList.map((note) => {
-        const noteId = "source-" + note.pitch;
-        newState.sourceColumn.push(noteId);
-        newNotes.push({
-          id: noteId,
-          pitch: note.pitch,
-          name: note.name,
-          target: false,
-        });
-      });
+    const columnToPreserve = updateSource
+      ? newState.targetColumn
+      : newState.sourceColumn;
 
-      newState.notes = newNotes.reduce(
-        (obj, cur) => ({ ...obj, [cur.id]: cur }),
-        {}
-      );
+    columnToPreserve.map((noteId) => {
+      let note = this.getNoteForId(noteId);
+      newNotes.push({
+        id: note.id,
+        pitch: note.pitch,
+        name: note.name,
+        target: note.target,
+        assignedNotes: [],
+      });
+      return null;
+    });
 
-      console.log(newState);
-      this.setState(newState);
-    }
+    const columnToUpdate = pitchList.map((note) => {
+      const noteId = columnId + "-" + note.pitch;
+      newNotes.push({
+        id: noteId,
+        pitch: note.pitch,
+        name: note.name,
+        target: !updateSource,
+        assignedNotes: [],
+      });
+      return noteId;
+    });
+
+    if (updateSource) newState.sourceColumn = columnToUpdate;
+    else newState.targetColumn = columnToUpdate;
+
+    newState.notes = newNotes.reduce(
+      (obj, cur) => ({ ...obj, [cur.id]: cur }),
+      {}
+    );
+
+    console.log(newState);
+    this.setState(newState);
   }
 
   render() {

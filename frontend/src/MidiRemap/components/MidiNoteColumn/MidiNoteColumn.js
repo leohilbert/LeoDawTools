@@ -54,7 +54,7 @@ export default function MidiNoteColumn({
     <Container className={classes.remapTable}>
       <PitchListUpload columnId={columnId} updatePitchList={updatePitchList} />
       <div className={classes.column}>
-        <Droppable droppableId={columnId}>
+        <Droppable droppableId={columnId} type={columnId}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {noteIds.map((noteId, index) => renderCard(noteId, index))}

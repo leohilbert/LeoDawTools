@@ -22,13 +22,22 @@ const useStyles = makeStyles({
 export default function PitchListUpload({ columnId, updatePitchList }) {
   const classes = useStyles();
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const data = new FormData();
-    data.append("file", acceptedFiles);
-    axios.post("http://localhost:3001/pitchList", data, {}).then((res) => {
-      updatePitchList(columnId, res.data);
-    });
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      const data = new FormData();
+      data.append("file", acceptedFiles[0]);
+      axios
+        .post("http://localhost:3001/pitchList", data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          updatePitchList(columnId, res.data);
+        });
+    },
+    [columnId, updatePitchList]
+  );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDrop,
     maxFiles: 1,

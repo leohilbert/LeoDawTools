@@ -49,7 +49,10 @@ export default function MidiTargetNoteCard({ noteId, getNoteForId }) {
     } else {
       return (
         <Card className={classes.dropHere}>
-          <CardContent>Drop Notes here</CardContent>
+          <CardContent>
+            {provided.placeholder}
+            Drop Notes here
+          </CardContent>
         </Card>
       );
     }
@@ -68,7 +71,7 @@ export default function MidiTargetNoteCard({ noteId, getNoteForId }) {
           {note.name}
         </Typography>
 
-        <Droppable droppableId={noteId}>
+        <Droppable droppableId={noteId} type="source">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {renderChildren(provided, note.assignedNotes)}
