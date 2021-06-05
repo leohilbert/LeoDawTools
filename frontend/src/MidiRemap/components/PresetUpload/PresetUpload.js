@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@material-ui/core";
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 //const useStyles = makeStyles({});
 
@@ -24,7 +25,7 @@ export default function PresetUpload({ updatePreset }) {
 
   return (
     <React.Fragment>
-      <Button variant="outlined" {...getRootProps()}>
+      <Button variant="outlined" {...getRootProps()} startIcon={<CloudUploadIcon  />}>
         <input {...getInputProps()} />
         {isDragActive ? <p>Drop Preset here</p> : <p>Load Preset</p>}
       </Button>
