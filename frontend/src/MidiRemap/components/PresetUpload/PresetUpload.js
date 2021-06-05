@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useDropzone } from "react-dropzone";
-import axios from "axios";
 import { Card, CardContent } from "@material-ui/core";
 
 const useStyles = makeStyles({
@@ -19,24 +18,18 @@ const useStyles = makeStyles({
   },
 });
 
-export default function PitchListUpload({ columnId, updatePitchList }) {
+export default function PresetUpload({ updatePreset }) {
   const classes = useStyles();
 
   const onDrop = useCallback(
     (acceptedFiles) => {
-      const data = new FormData();
-      data.append("file", acceptedFiles[0]);
-      axios
-        .post("http://localhost:3001/pitchList", data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          updatePitchList(columnId, res.data.name, res.data.content);
-        });
+      const fileReader = new FileReader();
+      fileReader.onloadend = () => {
+        updatePreset(JSON.parse(fileReader.result.toString()));
+      };
+      fileReader.readAsText(acceptedFiles[0]);
     },
-    [columnId, updatePitchList]
+    [updatePreset]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDrop,
@@ -48,9 +41,9 @@ export default function PitchListUpload({ columnId, updatePitchList }) {
       <CardContent>
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p className={classes.title}>Drop Pitch List here...</p>
+          <p className={classes.title}>Load Preset</p>
         ) : (
-          <p className={classes.title}>Drop Pitch List here...</p>
+          <p className={classes.title}>Drop Preset here</p>
         )}
       </CardContent>
     </Card>

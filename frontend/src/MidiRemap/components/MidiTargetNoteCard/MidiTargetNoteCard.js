@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-import { Droppable } from "react-beautiful-dnd";
+import { Draggable, Droppable } from "react-beautiful-dnd";
 import MidiNoteCard from "../MidiSourceNoteCard";
 
 const useStyles = makeStyles({
@@ -27,7 +27,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MidiTargetNoteCard({ noteId, getNoteForId }) {
+export default function MidiTargetNoteCard({ noteId, index, getNoteForId }) {
   const classes = useStyles();
   const note = getNoteForId(noteId);
 
@@ -58,27 +58,36 @@ export default function MidiTargetNoteCard({ noteId, getNoteForId }) {
     }
   };
   return (
-    <Card className={classes.root}>
-      <CardContent>
-        <Typography
-          className={classes.title}
-          color="textSecondary"
-          gutterBottom
+    <Draggable draggableId={noteId} index={index} type="target">
+      {(provided) => (
+        <Card
+          className={classes.root}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}
         >
-          {note.pitch}
-        </Typography>
-        <Typography variant="h5" component="h2">
-          {note.name}
-        </Typography>
+          <CardContent>
+            <Typography
+              className={classes.title}
+              color="textSecondary"
+              gutterBottom
+            >
+              {note.pitch}
+            </Typography>
+            <Typography variant="h5" component="h2">
+              {note.name}
+            </Typography>
 
-        <Droppable droppableId={noteId} type="source">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              {renderChildren(provided, note.assignedNotes)}
-            </div>
-          )}
-        </Droppable>
-      </CardContent>
-    </Card>
+            <Droppable droppableId={noteId} type="source">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {renderChildren(provided, note.assignedNotes)}
+                </div>
+              )}
+            </Droppable>
+          </CardContent>
+        </Card>
+      )}
+    </Draggable>
   );
 }

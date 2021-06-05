@@ -4,8 +4,14 @@ import { DragDropContext } from "react-beautiful-dnd";
 
 const initialData = {
   notes: {},
-  sourceColumn: [],
-  targetColumn: [],
+  sourceColumn: {
+    name: "",
+    content: [],
+  },
+  targetColumn: {
+    name: "",
+    content: [],
+  },
 };
 
 class MidiRemap extends React.Component {
@@ -30,7 +36,10 @@ class MidiRemap extends React.Component {
     const newState = JSON.parse(JSON.stringify(this.state));
 
     if (source.droppableId === "source") {
-      newState.sourceColumn.splice(source.index, 1);
+      newState.sourceColumn.content.splice(source.index, 1);
+    } else if (source.droppableId === "target") {
+      // Must be a target-note
+      newState.targetColumn.content.splice(source.index, 1);
     } else {
       // Inside a TargetNote
       let targetNote = newState.notes[source.droppableId];
@@ -38,7 +47,10 @@ class MidiRemap extends React.Component {
     }
 
     if (destination.droppableId === "source") {
-      newState.sourceColumn.splice(destination.index, 0, draggableId);
+      newState.sourceColumn.content.splice(destination.index, 0, draggableId);
+    } else if (source.droppableId === "target") {
+      // Must be a target-note
+      newState.targetColumn.content.splice(destination.index, 0, draggableId);
     } else {
       // Inside a TargetNote
       let targetNote = newState.notes[destination.droppableId];
@@ -53,7 +65,7 @@ class MidiRemap extends React.Component {
     return this.state.notes[noteId];
   }
 
-  updatePitchList(columnId, pitchList) {
+  updatePitchList(columnId, name, pitchList) {
     const newState = JSON.parse(JSON.stringify(this.state));
 
     const updateSource = columnId === "source"; // otherwise target
@@ -63,7 +75,7 @@ class MidiRemap extends React.Component {
       ? newState.targetColumn
       : newState.sourceColumn;
 
-    columnToPreserve.map((noteId) => {
+    columnToPreserve.content.map((noteId) => {
       let note = this.getNoteForId(noteId);
       newNotes.push({
         id: note.id,
@@ -75,7 +87,7 @@ class MidiRemap extends React.Component {
       return null;
     });
 
-    const columnToUpdate = pitchList.map((note) => {
+    const newContent = pitchList.map((note) => {
       const noteId = columnId + "-" + note.pitch;
       newNotes.push({
         id: noteId,
@@ -87,8 +99,12 @@ class MidiRemap extends React.Component {
       return noteId;
     });
 
-    if (updateSource) newState.sourceColumn = columnToUpdate;
-    else newState.targetColumn = columnToUpdate;
+    let newColumn = {
+      name: name,
+      content: newContent,
+    };
+    if (updateSource) newState.sourceColumn = newColumn;
+    else newState.targetColumn = newColumn;
 
     newState.notes = newNotes.reduce(
       (obj, cur) => ({ ...obj, [cur.id]: cur }),
@@ -97,6 +113,20 @@ class MidiRemap extends React.Component {
 
     console.log(newState);
     this.setState(newState);
+  }
+
+  buildRemapData(state) {
+    const remapList = state.targetColumn.content.flatMap((noteId) => {
+      const note = this.getNoteForId(noteId);
+      return note.assignedNotes.flatMap((assignedNoteId) => {
+        const assignedNote = this.getNoteForId(assignedNoteId);
+        return {
+          from: assignedNote.pitch,
+          to: note.pitch,
+        };
+      });
+    });
+    return remapList.reduce((obj, cur) => ({ ...obj, [cur.from]: cur.to }), {});
   }
 
   render() {
@@ -108,6 +138,18 @@ class MidiRemap extends React.Component {
             targetColumn={this.state.targetColumn}
             getNoteForId={this.getNoteForId}
             updatePitchList={this.updatePitchList}
+            buildRemapData={() => this.buildRemapData(this.state)}
+            updatePreset={(state) => this.setState(state)}
+            savePreset={() => {
+              const element = document.createElement("a");
+              const file = new Blob([JSON.stringify(this.state)], {
+                type: "application/json",
+              });
+              element.href = URL.createObjectURL(file);
+              element.download = `pitchRemapPreset-${this.state.sourceColumn.name}-${this.state.targetColumn.name}.json`;
+              document.body.appendChild(element); // Required for this to work in FireFox
+              element.click();
+            }}
           />
         </React.Fragment>
       </DragDropContext>

@@ -20,11 +20,15 @@ const useStyles = makeStyles({
       paddingRight: "0",
     },
   },
+  pitchListName: {
+    minHeight: "2rem",
+    color: "white",
+  },
 });
 
 export default function MidiNoteColumn({
   columnId,
-  noteIds,
+  column,
   getNoteForId,
   updatePitchList,
 }) {
@@ -44,6 +48,7 @@ export default function MidiNoteColumn({
         <MidiTargetNoteCard
           key={noteId}
           noteId={noteId}
+          index={index}
           getNoteForId={getNoteForId}
         />
       );
@@ -52,12 +57,13 @@ export default function MidiNoteColumn({
   const classes = useStyles();
   return (
     <Container className={classes.remapTable}>
+      <h2 className={classes.pitchListName}>{column.name}</h2>
       <PitchListUpload columnId={columnId} updatePitchList={updatePitchList} />
       <div className={classes.column}>
         <Droppable droppableId={columnId} type={columnId}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {noteIds.map((noteId, index) => renderCard(noteId, index))}
+              {column.content.map((noteId, index) => renderCard(noteId, index))}
               {provided.placeholder}
             </div>
           )}
