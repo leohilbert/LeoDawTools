@@ -11,6 +11,8 @@ const useStyles = makeStyles({
     border: "1px solid rgba(50, 50, 50, .5)",
     padding: "0.5rem",
     minHeight: "6rem",
+    maxHeight: "40vh",
+    overflow: "auto"
   },
   remapTable: {
     "&:nth-child(1)": {
