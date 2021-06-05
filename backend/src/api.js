@@ -1,30 +1,30 @@
 const createError = require("http-errors");
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 const morgan = require("morgan");
+const serverless = require("serverless-http");
 
 const indexRouter = require("./routes/index");
 
-const app = express();
+const api = express();
 
 // noinspection JSCheckFunctionSignatures
-app.use(morgan("dev"));
+api.use(morgan("dev"));
 
 // noinspection JSCheckFunctionSignatures
-app.use(
+api.use(
   cors({
     exposedHeaders: ["Content-disposition"],
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+api.use(express.json());
+api.use(express.urlencoded({ extended: false }));
 
-app.use("/", indexRouter);
+api.use("/", indexRouter);
+api.use("/.netlify/functions/api", indexRouter);
 
-app.use(function (req, res) {
+api.use(function (req, res) {
   const err = createError(404);
   res.status(404).send({
     message: err.message,
@@ -32,7 +32,7 @@ app.use(function (req, res) {
   });
 });
 
-app.use(function (err, req, res) {
+api.use(function (err, req, res) {
   console.log(err);
   res.status(500).send({
     message: err.message,
@@ -40,4 +40,5 @@ app.use(function (err, req, res) {
   });
 });
 
-module.exports = app;
+module.exports = api;
+module.exports.handler = serverless(api);

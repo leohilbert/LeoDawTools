@@ -7,6 +7,12 @@ const router = express.Router();
 const midiFile = require("midi-file");
 const MidiRemapService = require("../services/MidiRemapService");
 
+router.get("/", function (req, res) {
+  res.send({
+    hi: "ho",
+  });
+});
+
 router.post("/remap", upload.single("midi"), function (req, res) {
   const source = midiFile.parseMidi(req.file.buffer);
   let remapData = JSON.parse(req.body["remapData"]);
