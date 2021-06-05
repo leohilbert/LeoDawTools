@@ -4,6 +4,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import { Draggable } from "react-beautiful-dnd";
+import MusicPitchName from "../../MusicPitchName";
 
 const useStyles = makeStyles({
   root: {
@@ -37,7 +38,7 @@ export default function MidiSourceNoteCard({ note, index }) {
               color="textSecondary"
               gutterBottom
             >
-              {note.pitch}
+              {MusicPitchName.fromMidi(note.pitch)} ({note.pitch})
             </Typography>
             <Typography variant="h5" component="h2">
               {note.name}

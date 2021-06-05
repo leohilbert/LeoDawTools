@@ -5,6 +5,8 @@ import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import MidiSourceNoteCard from "../MidiSourceNoteCard";
+import MusicPitchName from "../../MusicPitchName";
+import { Box } from "@material-ui/core";
 
 const useStyles = makeStyles({
   root: {
@@ -41,7 +43,7 @@ export default function MidiTargetNoteCard({ note, index, getNoteForId }) {
       );
     } else {
       return (
-        <Card className={classes.dropHere}>
+        <Card>
           <CardContent>
             {provided.placeholder}
             Drop Notes here
@@ -61,7 +63,7 @@ export default function MidiTargetNoteCard({ note, index, getNoteForId }) {
         >
           <CardContent>
             <Typography className={classes.title} gutterBottom>
-              {note.pitch}
+              {MusicPitchName.fromMidi(note.pitch)} ({note.pitch})
             </Typography>
             <Typography variant="h5" component="h2">
               {note.name}
@@ -69,9 +71,14 @@ export default function MidiTargetNoteCard({ note, index, getNoteForId }) {
 
             <Droppable droppableId={note.id} type="source">
               {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
+                <Box
+                  borderColor="grey.700"
+                  border={1}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
                   {renderChildren(provided, note.assignedNotes)}
-                </div>
+                </Box>
               )}
             </Droppable>
           </CardContent>
