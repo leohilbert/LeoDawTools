@@ -1,5 +1,5 @@
 import React from "react";
-import { Container } from "@material-ui/core";
+import { Container, TextField } from "@material-ui/core";
 import MidiSourceNoteCard from "../MidiSourceNoteCard";
 import MidiTargetNoteCard from "../MidiTargetNoteCard";
 import { Droppable } from "react-beautiful-dnd";
@@ -25,21 +25,22 @@ const useStyles = makeStyles({
     color: "white",
   },
 });
-
 export default function MidiNoteColumn({
   columnId,
   column,
   getNoteForId,
   updatePitchList,
+  updateFilterValue,
 }) {
   const renderCard = (noteId, index) => {
+    const note = getNoteForId(noteId);
+    if (column.filter && !note.name.includes(column.filter)) return null;
     if (columnId === "source") {
       return (
         <MidiSourceNoteCard
           key={noteId}
-          noteId={noteId}
+          note={note}
           index={index}
-          columnId={columnId}
           getNoteForId={getNoteForId}
         />
       );
@@ -47,7 +48,7 @@ export default function MidiNoteColumn({
       return (
         <MidiTargetNoteCard
           key={noteId}
-          noteId={noteId}
+          note={note}
           index={index}
           getNoteForId={getNoteForId}
         />
@@ -59,6 +60,11 @@ export default function MidiNoteColumn({
     <Container className={classes.remapTable}>
       <h2 className={classes.pitchListName}>{column.name}</h2>
       <PitchListUpload columnId={columnId} updatePitchList={updatePitchList} />
+      <TextField
+        value={column.filter}
+        onChange={(e) => updateFilterValue(columnId, e.target.value)}
+      />
+
       <div className={classes.column}>
         <Droppable droppableId={columnId} type={columnId}>
           {(provided) => (

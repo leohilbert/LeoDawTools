@@ -4,7 +4,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import MidiNoteCard from "../MidiSourceNoteCard";
+import MidiSourceNoteCard from "../MidiSourceNoteCard";
 
 const useStyles = makeStyles({
   root: {
@@ -27,19 +27,17 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MidiTargetNoteCard({ noteId, index, getNoteForId }) {
+export default function MidiTargetNoteCard({ note, index, getNoteForId }) {
   const classes = useStyles();
-  const note = getNoteForId(noteId);
 
   const renderChildren = (provided, assignedNotes) => {
     if (assignedNotes && assignedNotes.length) {
       return (
         <div>
           {assignedNotes.map((noteId, index) => (
-            <MidiNoteCard
+            <MidiSourceNoteCard
               key={noteId}
-              noteId={noteId}
-              getNoteForId={getNoteForId}
+              note={getNoteForId(noteId)}
               index={index}
             />
           ))}
@@ -58,7 +56,7 @@ export default function MidiTargetNoteCard({ noteId, index, getNoteForId }) {
     }
   };
   return (
-    <Draggable draggableId={noteId} index={index} type="target">
+    <Draggable draggableId={note.id} index={index} type="target">
       {(provided) => (
         <Card
           className={classes.root}
@@ -78,7 +76,7 @@ export default function MidiTargetNoteCard({ noteId, index, getNoteForId }) {
               {note.name}
             </Typography>
 
-            <Droppable droppableId={noteId} type="source">
+            <Droppable droppableId={note.id} type="source">
               {(provided) => (
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   {renderChildren(provided, note.assignedNotes)}

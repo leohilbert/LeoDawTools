@@ -21,11 +21,10 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MidiSourceNoteCard({ noteId, index, getNoteForId }) {
+export default function MidiSourceNoteCard({ note, index }) {
   const classes = useStyles();
-  const note = getNoteForId(noteId);
   return (
-    <Draggable draggableId={noteId} index={index} type="source">
+    <Draggable draggableId={note.id} index={index} type="source">
       {(provided, snapshot) => (
         <Card
           className={`${snapshot.isDragging ? classes.rootDragged : ""} ${

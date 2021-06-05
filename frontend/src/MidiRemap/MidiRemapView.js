@@ -34,6 +34,7 @@ function MidiRemapView({
   updatePreset,
   savePreset,
   buildRemapData,
+  updateFilterValue,
 }) {
   const classes = useStyles();
 
@@ -52,12 +53,14 @@ function MidiRemapView({
             column={sourceColumn}
             getNoteForId={getNoteForId}
             updatePitchList={updatePitchList}
+            updateFilterValue={updateFilterValue}
             columnId="source"
           />
           <MidiNoteColumn
             column={targetColumn}
             getNoteForId={getNoteForId}
             updatePitchList={updatePitchList}
+            updateFilterValue={updateFilterValue}
             columnId="target"
           />
         </div>

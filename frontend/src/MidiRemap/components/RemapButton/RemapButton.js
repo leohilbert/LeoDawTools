@@ -20,15 +20,23 @@ export default function RemapButton({ buildRemapData }) {
     (acceptedFiles) => {
       const data = new FormData();
       data.append("midi", acceptedFiles[0]);
-      data.append("remapData", buildRemapData());
+      data.append("remapData", JSON.stringify(buildRemapData()));
       axios
         .post("http://localhost:3001/remap", data, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          responseType: "blob",
         })
         .then((res) => {
-          console.log(res);
+          let fileName =
+            res.headers["content-disposition"].split("filename=")[1];
+          const url = window.URL.createObjectURL(new Blob([res.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", fileName); //or any other extension
+          document.body.appendChild(link);
+          link.click();
         });
     },
     [buildRemapData]

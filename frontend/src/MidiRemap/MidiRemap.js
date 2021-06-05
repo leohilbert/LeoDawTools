@@ -6,10 +6,12 @@ const initialData = {
   notes: {},
   sourceColumn: {
     name: "",
+    filter: "",
     content: [],
   },
   targetColumn: {
     name: "",
+    filter: "",
     content: [],
   },
 };
@@ -149,6 +151,9 @@ class MidiRemap extends React.Component {
               element.download = `pitchRemapPreset-${this.state.sourceColumn.name}-${this.state.targetColumn.name}.json`;
               document.body.appendChild(element); // Required for this to work in FireFox
               element.click();
+            }}
+            updateFilterValue={(columnId, value) => {
+              this.setState({ ...this.state });
             }}
           />
         </React.Fragment>
