@@ -1,12 +1,11 @@
 import React, { useCallback } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@material-ui/core";
 
-const useStyles = makeStyles({});
+//const useStyles = makeStyles({});
 
 export default function PresetUpload({ updatePreset }) {
-  const classes = useStyles();
+  //const classes = useStyles();
 
   const onDrop = useCallback(
     (acceptedFiles) => {
