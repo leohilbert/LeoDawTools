@@ -4,24 +4,66 @@ import { DragDropContext } from "react-beautiful-dnd";
 
 const initialData = {
   notes: {},
-  sourceColumn: {
-    name: "",
-    filter: "",
-    content: [],
-  },
-  targetColumn: {
-    name: "",
-    filter: "",
-    content: [],
+  columns: {
+    source: {
+      name: "",
+      filter: "",
+      content: [],
+    },
+    target: {
+      name: "",
+      filter: "",
+      content: [],
+    },
   },
 };
 
 class MidiRemap extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = initialData;
-    this.getNoteForId = this.getNoteForId.bind(this);
-    this.updatePitchList = this.updatePitchList.bind(this);
+  state = initialData;
+
+  render() {
+    return (
+      <DragDropContext onDragEnd={this.onDragEnd}>
+        <React.Fragment>
+          <MidiRemapView
+            columns={this.state.columns}
+            getNoteForId={(noteId) => this.getNoteForId(noteId)}
+            updatePitchList={(columnId, name, pitchList) =>
+              this.updatePitchList(columnId, name, pitchList)
+            }
+            buildRemapData={() => this.buildRemapData(this.state)}
+            updatePreset={(loadedState) => this.setState(loadedState)}
+            savePreset={() => this.savePreset()}
+            updateFilterValue={(columnId, value) => {
+              let newState = { ...this.state };
+              newState.columns[columnId].filter = value;
+              this.setState(newState);
+            }}
+          />
+        </React.Fragment>
+      </DragDropContext>
+    );
+  }
+
+  savePreset() {
+    this.resetFilters();
+    const element = document.createElement("a");
+    const file = new Blob([JSON.stringify(this.state)], {
+      type: "application/json",
+    });
+    element.href = URL.createObjectURL(file);
+    element.download = `pitchRemapPreset-${this.state.columns.source.name}-${this.state.columns.target.name}.json`;
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }
+
+  resetFilters() {
+    let newState = { ...this.state };
+    Object.values(newState.columns).map((column) => {
+      column.filter = "";
+      return null;
+    });
+    this.setState(newState);
   }
 
   onDragEnd = (result) => {
@@ -37,29 +79,25 @@ class MidiRemap extends React.Component {
 
     const newState = JSON.parse(JSON.stringify(this.state));
 
-    if (source.droppableId === "source") {
-      newState.sourceColumn.content.splice(source.index, 1);
-    } else if (source.droppableId === "target") {
-      // Must be a target-note
-      newState.targetColumn.content.splice(source.index, 1);
+    let sourceColumn = newState.columns[source.droppableId];
+    if (sourceColumn) {
+      sourceColumn.content.splice(source.index, 1);
     } else {
       // Inside a TargetNote
       let targetNote = newState.notes[source.droppableId];
       targetNote.assignedNotes.splice(source.index, 1);
     }
 
-    if (destination.droppableId === "source") {
-      newState.sourceColumn.content.splice(destination.index, 0, draggableId);
-    } else if (source.droppableId === "target") {
-      // Must be a target-note
-      newState.targetColumn.content.splice(destination.index, 0, draggableId);
+    let destColumn = newState.columns[destination.droppableId];
+    if (destColumn) {
+      destColumn.content.splice(destination.index, 0, draggableId);
     } else {
       // Inside a TargetNote
       let targetNote = newState.notes[destination.droppableId];
-      if (!targetNote) return;
       targetNote.assignedNotes.splice(destination.index, 0, draggableId);
     }
-    console.log(newState);
+
+    //console.log(newState);
     this.setState(newState);
   };
 
@@ -70,13 +108,18 @@ class MidiRemap extends React.Component {
   updatePitchList(columnId, name, pitchList) {
     const newState = JSON.parse(JSON.stringify(this.state));
 
+    let columnToUpdate;
+    let columnToPreserve;
     const updateSource = columnId === "source"; // otherwise target
+    if (updateSource) {
+      columnToPreserve = newState.columns.target;
+      columnToUpdate = newState.columns.source;
+    } else {
+      columnToPreserve = newState.columns.source;
+      columnToUpdate = newState.columns.target;
+    }
 
     const newNotes = [];
-    const columnToPreserve = updateSource
-      ? newState.targetColumn
-      : newState.sourceColumn;
-
     columnToPreserve.content.map((noteId) => {
       let note = this.getNoteForId(noteId);
       newNotes.push({
@@ -101,12 +144,8 @@ class MidiRemap extends React.Component {
       return noteId;
     });
 
-    let newColumn = {
-      name: name,
-      content: newContent,
-    };
-    if (updateSource) newState.sourceColumn = newColumn;
-    else newState.targetColumn = newColumn;
+    columnToUpdate.name = name;
+    columnToUpdate.content = newContent;
 
     newState.notes = newNotes.reduce(
       (obj, cur) => ({ ...obj, [cur.id]: cur }),
@@ -118,7 +157,7 @@ class MidiRemap extends React.Component {
   }
 
   buildRemapData(state) {
-    const remapList = state.targetColumn.content.flatMap((noteId) => {
+    const remapList = state.columns.target.content.flatMap((noteId) => {
       const note = this.getNoteForId(noteId);
       return note.assignedNotes.flatMap((assignedNoteId) => {
         const assignedNote = this.getNoteForId(assignedNoteId);
@@ -129,36 +168,6 @@ class MidiRemap extends React.Component {
       });
     });
     return remapList.reduce((obj, cur) => ({ ...obj, [cur.from]: cur.to }), {});
-  }
-
-  render() {
-    return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        <React.Fragment>
-          <MidiRemapView
-            sourceColumn={this.state.sourceColumn}
-            targetColumn={this.state.targetColumn}
-            getNoteForId={this.getNoteForId}
-            updatePitchList={this.updatePitchList}
-            buildRemapData={() => this.buildRemapData(this.state)}
-            updatePreset={(state) => this.setState(state)}
-            savePreset={() => {
-              const element = document.createElement("a");
-              const file = new Blob([JSON.stringify(this.state)], {
-                type: "application/json",
-              });
-              element.href = URL.createObjectURL(file);
-              element.download = `pitchRemapPreset-${this.state.sourceColumn.name}-${this.state.targetColumn.name}.json`;
-              document.body.appendChild(element); // Required for this to work in FireFox
-              element.click();
-            }}
-            updateFilterValue={(columnId, value) => {
-              this.setState({ ...this.state });
-            }}
-          />
-        </React.Fragment>
-      </DragDropContext>
-    );
   }
 }
 

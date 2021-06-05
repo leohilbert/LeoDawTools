@@ -9,15 +9,12 @@ const useStyles = makeStyles({
   root: {
     minWidth: 275,
     marginBottom: "1rem",
-    color: "white",
-    backgroundColor: "#1d1d1d",
   },
   rootDragged: {
     filter: "drop-shadow(0 0 1rem crimson);",
   },
   title: {
     fontSize: 14,
-    color: "white",
   },
 });
 

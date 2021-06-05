@@ -10,20 +10,15 @@ const useStyles = makeStyles({
   root: {
     minWidth: 275,
     marginBottom: "1rem",
-    color: "white",
-    backgroundColor: "#1d1d1d",
   },
   title: {
     fontSize: 14,
-    color: "white",
   },
   dropHere: {
     marginTop: "1rem",
     borderWidth: "2px",
     borderStyle: "dashed",
     backgroundColor: "transparent",
-    borderColor: "darkgray",
-    color: "white",
   },
 });
 
@@ -65,11 +60,7 @@ export default function MidiTargetNoteCard({ note, index, getNoteForId }) {
           ref={provided.innerRef}
         >
           <CardContent>
-            <Typography
-              className={classes.title}
-              color="textSecondary"
-              gutterBottom
-            >
+            <Typography className={classes.title} gutterBottom>
               {note.pitch}
             </Typography>
             <Typography variant="h5" component="h2">

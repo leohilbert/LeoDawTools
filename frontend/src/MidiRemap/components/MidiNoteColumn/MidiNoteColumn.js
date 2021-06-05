@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, TextField } from "@material-ui/core";
+import { Container, TextField, Typography } from "@material-ui/core";
 import MidiSourceNoteCard from "../MidiSourceNoteCard";
 import MidiTargetNoteCard from "../MidiTargetNoteCard";
 import { Droppable } from "react-beautiful-dnd";
@@ -22,8 +22,8 @@ const useStyles = makeStyles({
   },
   pitchListName: {
     minHeight: "2rem",
-    color: "white",
   },
+  filterField: {},
 });
 export default function MidiNoteColumn({
   columnId,
@@ -34,7 +34,11 @@ export default function MidiNoteColumn({
 }) {
   const renderCard = (noteId, index) => {
     const note = getNoteForId(noteId);
-    if (column.filter && !note.name.includes(column.filter)) return null;
+    if (
+      column.filter &&
+      !note.name.toLowerCase().includes(column.filter.toLowerCase())
+    )
+      return null;
     if (columnId === "source") {
       return (
         <MidiSourceNoteCard
@@ -58,9 +62,20 @@ export default function MidiNoteColumn({
   const classes = useStyles();
   return (
     <Container className={classes.remapTable}>
-      <h2 className={classes.pitchListName}>{column.name}</h2>
+      <Typography
+        variant="h4"
+        color="textSecondary"
+        className={classes.pitchListName}
+      >
+        {column.name}
+      </Typography>
       <PitchListUpload columnId={columnId} updatePitchList={updatePitchList} />
       <TextField
+        InputProps={{
+          className: classes.filterField,
+        }}
+        variant="outlined"
+        label="Filter"
         value={column.filter}
         onChange={(e) => updateFilterValue(columnId, e.target.value)}
       />

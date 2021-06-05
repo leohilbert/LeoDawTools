@@ -7,14 +7,12 @@ import { Card, CardContent } from "@material-ui/core";
 const useStyles = makeStyles({
   title: {
     fontSize: 14,
-    color: "white",
   },
   dropHere: {
     marginTop: "0.5rem",
     borderWidth: "2px",
     borderStyle: "dashed",
     backgroundColor: "transparent",
-    color: "darkgray",
     marginBottom: "1rem",
   },
 });
