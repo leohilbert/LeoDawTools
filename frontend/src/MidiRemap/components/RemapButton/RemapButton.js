@@ -22,7 +22,7 @@ export default function RemapButton({ buildRemapData }) {
       data.append("midi", acceptedFiles[0]);
       data.append("remapData", JSON.stringify(buildRemapData()));
       axios
-        .post("http://localhost:3001/remap", data, {
+        .post(`${process.env.REACT_APP_BACKEND_API_BASE_URL}/remap`, data, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

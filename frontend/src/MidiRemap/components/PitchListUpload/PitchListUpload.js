@@ -25,7 +25,7 @@ export default function PitchListUpload({ columnId, updatePitchList }) {
       const data = new FormData();
       data.append("file", acceptedFiles[0]);
       axios
-        .post("http://localhost:3001/pitchList", data, {
+        .post(`${process.env.REACT_APP_BACKEND_API_BASE_URL}/pitchList`, data, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
