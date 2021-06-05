@@ -74,12 +74,13 @@ export default function MidiNoteColumn({
       <PitchListUpload columnId={columnId} updatePitchList={updatePitchList} />
       <TextField
         InputProps={{
-          className: classes.filterField,
+          className: classes.filterField
         }}
         variant="outlined"
         label="Filter"
         value={column.filter}
         onChange={(e) => updateFilterValue(columnId, e.target.value)}
+        fullWidth
       />
 
       <div className={classes.column}>
