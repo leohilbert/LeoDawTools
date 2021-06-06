@@ -12,7 +12,7 @@ const useStyles = makeStyles({
     padding: "0.5rem",
     minHeight: "6rem",
     maxHeight: "40vh",
-    overflow: "auto"
+    overflow: "auto",
   },
   remapTable: {
     "&:nth-child(1)": {
@@ -74,7 +74,7 @@ export default function MidiNoteColumn({
       <PitchListUpload columnId={columnId} updatePitchList={updatePitchList} />
       <TextField
         InputProps={{
-          className: classes.filterField
+          className: classes.filterField,
         }}
         variant="outlined"
         label="Filter"
