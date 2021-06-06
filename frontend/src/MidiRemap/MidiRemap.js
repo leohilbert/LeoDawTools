@@ -55,6 +55,7 @@ class MidiRemap extends React.Component {
     element.download = `pitchRemapPreset-${this.state.columns.source.name}-${this.state.columns.target.name}.json`;
     document.body.appendChild(element); // Required for this to work in FireFox
     element.click();
+    element.remove();
   }
 
   resetFilters() {

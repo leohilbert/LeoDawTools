@@ -2,7 +2,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import MidiNoteColumn from "./components/MidiNoteColumn/MidiNoteColumn";
 import Button from "@material-ui/core/Button";
-import PresetUpload from "./components/PresetUpload";
+import LoadPreset from "./components/LoadPreset";
 import RemapButton from "./components/RemapButton";
 import { Typography } from "@material-ui/core";
 import Icon from "@material-ui/core/Icon";
@@ -65,7 +65,7 @@ function MidiRemapView({
         Midi Remap
       </Typography>
       <div className={classes.headerButtons}>
-        <PresetUpload updatePreset={updatePreset} />
+        <LoadPreset updatePreset={updatePreset} />
         <Button
           variant="outlined"
           onClick={savePreset}

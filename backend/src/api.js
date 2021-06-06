@@ -12,11 +12,7 @@ const api = express();
 api.use(morgan("dev"));
 
 // noinspection JSCheckFunctionSignatures
-api.use(
-  cors({
-    exposedHeaders: ["Content-disposition"],
-  })
-);
+api.use(cors({}));
 
 api.use(express.json());
 api.use(express.urlencoded({ extended: false }));

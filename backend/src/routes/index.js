@@ -13,8 +13,8 @@ router.get("/", function (req, res) {
   });
 });
 
-router.post("/remap", upload.single("midi"), function (req, res) {
-  const source = midiFile.parseMidi(req.file.buffer);
+router.post("/remap", upload.none(), function (req, res) {
+  const source = midiFile.parseMidi(Buffer.from(req.body["midi"], "base64"));
   let remapData = JSON.parse(req.body["remapData"]);
 
   const remapped = new MidiRemapService().remap(source, remapData);
@@ -22,14 +22,9 @@ router.post("/remap", upload.single("midi"), function (req, res) {
   const remappedMidi = midiFile.writeMidi(remapped);
 
   const readStream = new stream.PassThrough();
-  readStream.end(Buffer.from(remappedMidi));
+  readStream.end(Buffer.from(remappedMidi).toString("base64"));
 
-  let fileName = req.file.originalname.replace(/\.[^/.]+$/, "");
-  res.set(
-    "Content-disposition",
-    `attachment; filename=${fileName}-remapped.midi`
-  );
-  res.set("Content-Type", "audio/midi");
+  res.set("Content-Type", "application/octet-stream");
   readStream.pipe(res);
 });
 

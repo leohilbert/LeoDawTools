@@ -19,26 +19,35 @@ export default function RemapButton({ buildRemapData }) {
 
   const onDrop = useCallback(
     (acceptedFiles) => {
-      const data = new FormData();
-      data.append("midi", acceptedFiles[0]);
-      data.append("remapData", JSON.stringify(buildRemapData()));
-      axios
-        .post(`${process.env.REACT_APP_BACKEND_API_BASE_URL}/remap`, data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          responseType: "blob",
-        })
-        .then((res) => {
-          let fileName =
-            res.headers["content-disposition"].split("filename=")[1];
-          const url = window.URL.createObjectURL(new Blob([res.data]));
-          const link = document.createElement("a");
-          link.href = url;
-          link.setAttribute("download", fileName); //or any other extension
-          document.body.appendChild(link);
-          link.click();
-        });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const data = new FormData();
+        let midiBase64 = reader.result.substr(reader.result.indexOf(",") + 1);
+        data.append("midi", midiBase64);
+        data.append("remapData", JSON.stringify(buildRemapData()));
+        axios
+          .post(`${process.env.REACT_APP_BACKEND_API_BASE_URL}/remap`, data, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            responseType: "blob",
+          })
+          .then((res) =>
+            res.data.text().then((convertedMidiBase64) => {
+              let fileName = acceptedFiles[0].name.replace(/\.[^/.]+$/, "");
+              const link = document.createElement("a");
+              link.href =
+                "data:application/octet-stream;base64," + convertedMidiBase64;
+              console.log(acceptedFiles[0]);
+              console.log(reader);
+              link.download = fileName + "-remapped.mid";
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+            })
+          );
+      };
+      reader.readAsDataURL(acceptedFiles[0]);
     },
     [buildRemapData]
   );

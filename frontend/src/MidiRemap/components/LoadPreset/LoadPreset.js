@@ -5,7 +5,7 @@ import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 
 //const useStyles = makeStyles({});
 
-export default function PresetUpload({ updatePreset }) {
+export default function LoadPreset({ updatePreset }) {
   //const classes = useStyles();
 
   const onDrop = useCallback(
