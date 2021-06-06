@@ -10,11 +10,13 @@ class MidiRemapService {
           const remappedNote = remapData[event.noteNumber];
           if (Number(remappedNote)) {
             event.noteNumber = Number(remappedNote);
-            return event;
+          } else {
+            // No mapped note-equivalent.
+            // Removing this event would cause an timing-offset for all following events
+            // For now we will just set it to the highest possible note (127) and hope nobody uses it.. ^^'
+            event.noteNumber = 127;
           }
-
-          // No note-equivalent. Remove this event.
-          return null;
+          return event;
         })
         .filter((el) => el != null);
     });
